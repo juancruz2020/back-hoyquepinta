@@ -1,6 +1,8 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.BusquedaDTO;
+import com.example.demo.dto.ResenaDTO;
+import com.example.demo.dto.ResenaResponseDTO;
 import com.example.demo.dto.eventoDBO;
 import com.example.demo.model.*;
 import com.example.demo.repository.*;
@@ -9,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,6 +27,8 @@ public class EventosService {
     private UsuarioRepository usuarioRepository;
     @Autowired
     private PatrocinadoRepository patrocinadoRepository;
+    @Autowired
+    private ResenaRepository resenaRepository;
 
     public List<Evento> obtenerEventosPatrocinados() {
         return eventoRepository.findByPatrocinado_IdPatrocinado(1);
@@ -93,6 +98,59 @@ public class EventosService {
         // 7) Guardar
         eventoRepository.save(evento);
         return true;
+    }
+
+
+    public boolean crearresena(ResenaDTO dto) {
+        try {
+            Evento evento = eventoRepository.findById(dto.getIdEvento())
+                    .orElseThrow(() -> new RuntimeException("Evento no encontrado"));
+
+            Usuario usuario = usuarioRepository.findById(dto.getIdUsuario())
+                    .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+            Resena resena = new Resena();
+            resena.setEstrellas(dto.getEstrellas());
+            resena.setDescripcion(dto.getDescripcion());
+            resena.setEvento(evento);
+            resena.setUsuario(usuario);
+            resenaRepository.save(resena);
+            return true;
+        } catch (RuntimeException e) {
+            System.out.println("Resena no publicada");
+            return false;
+        }
+    }
+
+    public List<ResenaResponseDTO> obtenerResenasPorEvento(Integer idEvento) {
+
+        List<Resena> resenas = resenaRepository.findByEvento_IdEvento(idEvento);
+        List<ResenaResponseDTO> respuesta = new ArrayList<>();
+
+        for (Resena r : resenas) {
+            ResenaResponseDTO dto = new ResenaResponseDTO();
+
+            dto.setIdResena(r.getIdResena());
+            dto.setEstrellas(r.getEstrellas());
+            dto.setDescripcion(r.getDescripcion());
+            dto.setIdEvento(idEvento);
+
+            if (r.getUsuario() != null) {
+                dto.setNombreUsuario(r.getUsuario().getNombre());
+            }
+
+            respuesta.add(dto);
+        }
+
+        return respuesta;
+    }
+
+    public Double obtenerPromedioEstrellasPorEvento(Integer idEvento) {
+
+        Double promedio = resenaRepository.promedioEstrellasPorEvento(idEvento);
+
+        // Si no hay reseñas, evitamos null
+        return promedio != null ? promedio : 0.0;
     }
 }
 
