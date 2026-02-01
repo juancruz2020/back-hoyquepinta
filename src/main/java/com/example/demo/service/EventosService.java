@@ -35,7 +35,7 @@ public class EventosService {
     }
 
     public List<Evento> obtenerEventosFiltrados(BusquedaDTO dto) {
-        return eventoRepository.findByPatrocinado_IdPatrocinadoAndUbicacion_IdUbicacionAndCategoria_IdCategoria(dto.getId_patrocinado(), dto.getId_ubicacion(), dto.getId_categoria());
+        return eventoRepository.findByPatrocinado_IdPatrocinadoOrUbicacion_IdUbicacionOrCategoria_IdCategoria(dto.getId_patrocinado(), dto.getId_ubicacion(), dto.getId_categoria());
     }
 
 

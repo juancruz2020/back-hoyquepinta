@@ -8,10 +8,11 @@ import java.util.List;
 public interface EventoRepository extends CrudRepository<Evento,Integer> {
     List<Evento> findByPatrocinado_IdPatrocinado(Integer idPatrocinado);
     List<Evento> findByFecha(LocalDate fecha);
-    List<Evento> findByPatrocinado_IdPatrocinadoAndUbicacion_IdUbicacionAndCategoria_IdCategoria(
+    List<Evento> findByPatrocinado_IdPatrocinadoOrUbicacion_IdUbicacionOrCategoria_IdCategoria(
             Integer idPatrocinado,
             Integer idUbicacion,
             Integer idCategoria
     );
+
     List<Evento> findByUsuario_IdUsuario(Integer idUsuario);
 }
